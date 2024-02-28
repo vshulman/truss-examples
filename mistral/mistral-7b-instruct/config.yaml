@@ -15,10 +15,10 @@ python_version: py311
 requirements:
 - sentencepiece
 - accelerate
-- transformers==4.34.0
+- transformers==4.38.1
 - torch==2.0.1
 model_cache:
-- repo_id: mistralai/Mistral-7B-Instruct-v0.1
+- repo_id: mistralai/Mistral-7B-Instruct-v0.2
   allow_patterns:
     - "*.json"
     - "*.safetensors"
