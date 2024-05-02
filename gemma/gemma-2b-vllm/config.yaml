@@ -1,0 +1,30 @@
+description: Generate text with an instruction-tuned version of Gemma 2B.
+environment_variables: {}
+external_package_dirs: []
+model_metadata:
+  avatar_url: https://cdn.baseten.co/production/static/explore/mistral_logo.png
+  cover_image_url: https://cdn.baseten.co/production/static/explore/mistral.png
+  engine_args:
+    model: google/gemma-2b-it
+    max_model_len: 8192
+  example_model_input:
+    prompt: What is Gemma?
+  pretty_name: Gemma 2B Instruct
+  prompt_format: |
+    <bos><start_of_turn>user
+    {prompt}<end_of_turn>
+    <start_of_turn>model
+  tags:
+  - text-generation
+model_name: Gemma 2B Instruct vLLM
+python_version: py311
+requirements_file: ./requirements.txt
+resources:
+  accelerator: A100:2
+  memory: 25Gi
+  use_gpu: true
+runtime:
+  predict_concurrency: 256
+secrets:
+  hf_access_token: null
+system_packages: []
