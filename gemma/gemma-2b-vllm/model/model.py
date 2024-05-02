@@ -79,7 +79,7 @@ class Model:
             async for output in vllm_generator:
                 text = output.outputs[0].text
                 if is_logprobs:
-                    logprobs = output.outputs[0].logprobs[0]
+                    logprobs = output.outputs[0].logprobs[-1]
                 delta = text[len(full_text) :]
                 full_text = text
                 if is_logprobs:
