@@ -10,13 +10,10 @@ model_name: Ultravox 0.2
 python_version: py311
 model_cache:
   - repo_id: fixie-ai/ultravox-v0.2
-requirements:
-  - accelerate
-  - einops
-  - transformers
-  - torch
+requirements: []
+requirements_file: ./requirements.txt
 resources:
-  accelerator: L4
+  accelerator: A100
   use_gpu: true
 secrets:
   hf_access_token: "your-hf-access-token"
