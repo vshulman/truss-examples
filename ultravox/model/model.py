@@ -63,11 +63,11 @@ class Model:
         text_parts = [part["text"] for part in content if part["type"] == "text"]
         audio_url = next(part["image_url"]["url"] for part in content if part["type"] == "image_url")
         # clone message
-        mock_payload = {}
-        mock_payload['audio'] = audio_url.split(',', 1)[1]
-        mock_payload["messages"] = [message]
+        payload = {}  # Renamed from mock_payload to payload
+        payload['audio'] = audio_url.split(',', 1)[1]
+        payload["messages"] = [message]
         # datasets.VoiceSample.from_prompt_and_raw
-        sample = datasets.VoiceSample.from_json(mock_payload)
+        sample = datasets.VoiceSample.from_json(payload)
         # sample = datasets.VoiceSample(messages=[{"role": "user", "content": "".join(text_parts)}], audio=audio_data)
         return sample
 
