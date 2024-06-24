@@ -1,18 +1,9 @@
-from threading import Thread
 from typing import Dict, Optional
 import time
 
 from ultravox.data import datasets
 from ultravox.inference import ultravox_infer
 from ultravox.inference import base
-
-# import torch
-# from transformers import (
-#     AutoModelForCausalLM,
-#     AutoTokenizer,
-#     GenerationConfig,
-#     TextIteratorStreamer,
-# )
 
 MAX_LENGTH = 512
 TEMPERATURE = 1.0
