@@ -48,6 +48,9 @@ class Model:
         )
 
         self.inference = ultravox_infer.UltravoxInference(**vars(inference_args))
+        
+        # Warm up the model
+        self.inference.infer(datasets.VoiceSample.from_prompt("Hello, world!"))
 
     # TODO: 1. Add this to datasets, 2. how to handle multiple messages and audio files?
     # Converts from oai json to standard json and then to voice sample
