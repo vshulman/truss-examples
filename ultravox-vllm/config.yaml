@@ -11,7 +11,7 @@ model_name: Ultravox v0.2 vLLM OpenAI-Compatible
 python_version: py310
 predict_concurrency: 512
 requirements:
-  - aiohttp
+  - httpx
 resources:
   accelerator: A100
   use_gpu: true

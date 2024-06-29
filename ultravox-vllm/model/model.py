@@ -1,7 +1,8 @@
+import json
 import subprocess
 import time
 from typing import Any, Dict, List
-import aiohttp
+import httpx  # Changed from aiohttp to httpx
 
 
 class Model:
@@ -35,20 +36,25 @@ class Model:
 
     async def predict(self, model_input):
         stream = model_input.get('stream', False)
-        
-        async with aiohttp.ClientSession() as session:
-            async with session.post(
-                f"http://localhost:{self._vllm_port}/v1/chat/completions",
-                json=model_input
-            ) as response:
-                
-                async def generator():
-                    async for chunk in response.content.iter_chunked(8192):
-                        if chunk:
-                            json_chunk = await response.json()
-                            yield json_chunk
+        # https://github.com/vllm-project/vllm/blob/665c48963be11b2e5cb7209cd25f884129e5c284/examples/api_client.py#L26
+        if stream:
+            async def generator():
+                async with httpx.AsyncClient(timeout=None) as client:   
+                    async with client.stream(
+                        "POST",
+                        f"http://localhost:{self._vllm_port}/v1/chat/completions",
+                    json=model_input
+                    ) as response:
+                        async for chunk in response.aiter_bytes():
+                            if chunk:
+                                yield chunk
+                        
+            return generator()
+        else:
+            async with httpx.AsyncClient(timeout=None) as client:   
+                response = await client.post(
+                    f"http://localhost:{self._vllm_port}/v1/chat/completions",
+                        json=model_input
+                    )
+                return response.json()
 
-                if stream:
-                    return generator()
-                else:
-                    return await response.json()
