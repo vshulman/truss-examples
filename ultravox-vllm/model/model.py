@@ -35,6 +35,12 @@ class Model:
             self._vllm_port = 8000
 
     async def predict(self, model_input):
+        print(model_input)
+        # if model is missing from model_input, use the model from the config
+        if 'model' not in model_input:
+            print(f"model_input missing model due to Baseten bridge, using {self._config['model_metadata']['name']}")
+            model_input['model'] = self._config['model_metadata']['name']
+
         stream = model_input.get('stream', False)
         # https://github.com/vllm-project/vllm/blob/665c48963be11b2e5cb7209cd25f884129e5c284/examples/api_client.py#L26
         if stream:
