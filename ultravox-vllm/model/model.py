@@ -20,7 +20,9 @@ class Model:
         # start the vLLM OpenAI Server
         # TODO: how do we know it's ready?
         # TODO: For ultravox, the first request should happen during load to warm the model
-        print(self._config)
+        # Initialize the httpx.AsyncClient
+        self._client = httpx.AsyncClient(timeout=None)
+        
         self._vllm_config = self._config["model_metadata"]["arguments"]
         
         command = ["python3", "-m", "vllm.entrypoints.openai.api_server"]
@@ -36,32 +38,28 @@ class Model:
             self._vllm_port = 8000
 
     async def predict(self, model_input):
-        print(model_input)
+        # print(model_input)
         # if model is missing from model_input, use the model from the config
-        # Uncommented since there are other issues preventing the bridge from working
-        # if 'model' not in model_input and 'model' in self._vllm_config:
-        #     print(f"model_input missing model due to Baseten bridge, using {self._vllm_config['model']}")
-        #     model_input['model'] = self._vllm_config['model']
+        if 'model' not in model_input and 'model' in self._vllm_config:
+            print(f"model_input missing model due to Baseten bridge, using {self._vllm_config['model']}")
+            model_input['model'] = self._vllm_config['model']
 
         stream = model_input.get('stream', False)
         if stream:
             async def generator():
-                async with httpx.AsyncClient(timeout=None) as client:   
-                    async with client.stream(
-                        "POST",
-                        f"http://localhost:{self._vllm_port}/v1/chat/completions",
+                async with self._client.stream(
+                    "POST",
+                    f"http://localhost:{self._vllm_port}/v1/chat/completions",
                     json=model_input
-                    ) as response:
-                        async for chunk in response.aiter_bytes():
-                            if chunk:
-                                yield chunk
+                ) as response:
+                    async for chunk in response.aiter_bytes():
+                        if chunk:
+                            yield chunk
                         
             return generator()
         else:
-            async with httpx.AsyncClient(timeout=None) as client:   
-                response = await client.post(
-                    f"http://localhost:{self._vllm_port}/v1/chat/completions",
-                        json=model_input
-                    )
-                return response.json()
-
+            response = await self._client.post(
+                f"http://localhost:{self._vllm_port}/v1/chat/completions",
+                json=model_input
+            )
+            return response.json()
