@@ -17,10 +17,6 @@ class Model:
         # subprocess.check_output(command, shell=True, text=True)
 
     def load(self):
-        # start the vLLM OpenAI Server
-        # TODO: how do we know it's ready?
-        # TODO: For ultravox, the first request should happen during load to warm the model
-        # Initialize the httpx.AsyncClient
         self._client = httpx.AsyncClient(timeout=None)
         
         self._vllm_config = self._config["model_metadata"]["arguments"]
@@ -37,9 +33,29 @@ class Model:
         else:
             self._vllm_port = 8000
 
+        # Polling to check if the server is up
+        server_up = False
+        start_time = time.time()
+        while time.time() - start_time < self.MAX_FAILED_SECONDS:
+            try:
+                response = httpx.get(f"http://localhost:{self._vllm_port}/health")
+                if response.status_code == 200:
+                    server_up = True
+                    break
+            except httpx.RequestError:
+                time.sleep(1)  # Wait for 1 second before retrying
+
+        if not server_up:
+            raise RuntimeError("Server failed to start within the maximum allowed time.")
+
     async def predict(self, model_input):
-        # print(model_input)
-        # if model is missing from model_input, use the model from the config
+        
+        # if the key metrics: true is present, let's return the vLLM /metrics endpoint
+        if model_input.get('metrics', False):
+            response = await self._client.get(f"http://localhost:{self._vllm_port}/metrics")
+            return response.text
+        
+        # convenience for Baseten bridge
         if 'model' not in model_input and 'model' in self._vllm_config:
             print(f"model_input missing model due to Baseten bridge, using {self._vllm_config['model']}")
             model_input['model'] = self._vllm_config['model']
