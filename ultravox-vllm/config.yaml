@@ -9,7 +9,8 @@ environment_variables: {}
 external_package_dirs: []
 model_name: Ultravox v0.2 vLLM OpenAI-Compatible
 python_version: py310
-predict_concurrency: 512
+runtime:
+  predict_concurrency: 512
 requirements:
   - httpx
 resources:
