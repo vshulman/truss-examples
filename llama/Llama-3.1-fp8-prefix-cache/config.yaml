@@ -1,0 +1,25 @@
+base_image:
+  image: docker.io/baseten/triton_trt_llm:a6aa8eb6ce9371521df166c480e10262cd9c0cf4
+  python_executable_path: /usr/bin/python3
+environment_variables: {}
+external_package_dirs: []
+model_metadata:
+  tags:
+  - text-generation
+  - openai-compatible
+  engine_repository: baseten/Meta-Llama-3.1-70B-H100-2ga0125d-TP4-FP8-7168
+  tokenizer_repository: neuralmagic/Meta-Llama-3.1-70B-Instruct-FP8
+  tensor_parallel_count: 4
+  pipeline_parallel_count: 1
+model_name: Llama 3.1 70B Instruct FP8 KV-Cache Reuse Enabled
+python_version: py311
+requirements:
+- tritonclient[all]
+- transformers
+- truss
+resources:
+  accelerator: H100:4
+  use_gpu: true
+runtime:
+  predict_concurrency: 256
+system_packages: []
